@@ -1,4 +1,4 @@
-FROM local-osx as build
+FROM docker.pkg.github.com/patricklodder/dogecoin/1.14.3-build-osx:latest as build
 WORKDIR /build
 
 COPY . .
