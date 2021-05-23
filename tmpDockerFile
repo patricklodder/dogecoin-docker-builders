@@ -1,0 +1,7 @@
+FROM 3b5db07d5c66
+WORKDIR /build/qa
+
+COPY qa .
+
+#RUN python3 rpc-tests/bumpfee.py
+RUN pull-tester/rpc-tests.py --extended

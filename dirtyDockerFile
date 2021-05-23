@@ -1,0 +1,15 @@
+FROM docker.pkg.github.com/patricklodder/dogecoin/1.14.4-compiled:latest as build
+WORKDIR /build
+
+COPY . .
+
+#RUN make clean
+RUN DEP_OPTS="NO_QT=1" make -j4
+
+#FROM build AS unittest
+#RUN make check VERBOSE=1
+
+#FROM build as rpctest
+#RUN apt-get update && apt-get install -y python3-dev python3-zmq
+#RUN /bin/bash qa/pull-tester/install-deps.sh
+#RUN qa/pull-tester/rpc-tests.py --coverage

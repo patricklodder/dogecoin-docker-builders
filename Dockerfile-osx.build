@@ -1,0 +1,28 @@
+FROM docker.pkg.github.com/patricklodder/dogecoin/base:latest AS deps
+WORKDIR /build/depends
+RUN apt-get update
+RUN apt-get install -y python-setuptools cmake imagemagick libcap-dev librsvg2-bin libz-dev libbz2-dev libtiff-tools python-dev
+COPY depends .
+RUN mkdir sdk-sources
+RUN mkdir SDKs
+RUN curl --location --fail https://bitcoincore.org/depends-sources/sdks/MacOSX10.11.sdk.tar.gz -o sdk-sources/MacOSX10.11.sdk.tar.gz
+RUN tar -C SDKs -xf sdk-sources/MacOSX10.11.sdk.tar.gz
+RUN make HOST=x86_64-apple-darwin11 -j4
+RUN rm -rf sources/*
+
+FROM deps AS build
+WORKDIR /build
+
+COPY . .
+
+RUN ./autogen.sh && \
+    ./configure --prefix=/build/depends/x86_64-apple-darwin11 && \
+    make -j4
+
+FROM build AS unittest
+RUN make check VERBOSE=1
+
+FROM build as rpctest
+RUN apt-get install -y python3-dev python3-zmq
+RUN /bin/bash qa/pull-tester/install-deps.sh
+RUN qa/pull-tester/rpc-tests.py --coverage
