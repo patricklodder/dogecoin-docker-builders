@@ -1,5 +1,5 @@
-FROM ghcr.io/patricklodder/dogecoin/base:latest AS deps
-#FROM e768b989569c AS deps
+#FROM ghcr.io/patricklodder/dogecoin/base:latest AS deps
+FROM fa43e519fcc5 AS deps
 WORKDIR /build/depends
 COPY depends .
 RUN make -j4 AVX2=1 NO_QT=1
@@ -12,6 +12,6 @@ COPY . .
 
 RUN ./autogen.sh && \
     ./configure --prefix=/build/depends/x86_64-pc-linux-gnu \
-                --enable-gui=no && \
+                --enable-intel-avx2 --disable-tests --enable-gui=no && \
     make -j4
 

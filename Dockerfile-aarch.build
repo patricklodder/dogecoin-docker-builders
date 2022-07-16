@@ -1,4 +1,5 @@
-FROM docker.pkg.github.com/patricklodder/dogecoin/base:latest AS deps
+FROM ghcr.io/patricklodder/dogecoin/base:latest AS deps
+RUN apt update && apt install -y g++-aarch64-linux-gnu g++-7-aarch64-linux-gnu gcc-7-aarch64-linux-gnu binutils-aarch64-linux-gnu
 WORKDIR /build/depends
 COPY depends .
 RUN make HOST=aarch64-linux-gnu -j4

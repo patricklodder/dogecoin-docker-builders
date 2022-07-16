@@ -1,13 +1,13 @@
-FROM docker.pkg.github.com/patricklodder/dogecoin/base:latest AS deps
+FROM ghcr.io/patricklodder/dogecoin/base:latest AS deps
 WORKDIR /build/depends
+RUN dpkg --add-architecture "i386"
 RUN apt-get update
-RUN apt-get install -y python-setuptools mingw-w64 g++-mingw-w64 nsis imagemagick libcap-dev librsvg2-bin libz-dev libbz2-dev libtiff-tools python-dev
+RUN apt-get install -y python-setuptools mingw-w64 g++-mingw-w64 nsis imagemagick libcap-dev librsvg2-bin libz-dev libbz2-dev libtiff-tools python-dev wine64 bc wine-binfmt
+RUN update-alternatives --set x86_64-w64-mingw32-gcc  /usr/bin/x86_64-w64-mingw32-gcc-posix
+RUN update-alternatives --set x86_64-w64-mingw32-g++  /usr/bin/x86_64-w64-mingw32-g++-posix
+RUN update-binfmts --import /usr/share/binfmts/wine
 COPY depends .
-RUN mkdir sdk-sources
-RUN mkdir SDKs
-RUN curl --location --fail https://bitcoincore.org/depends-sources/sdks/MacOSX10.11.sdk.tar.gz -o sdk-sources/MacOSX10.11.sdk.tar.gz
-RUN tar -C SDKs -xf sdk-sources/MacOSX10.11.sdk.tar.gz
-RUN make HOST=x86_64-apple-darwin11 -j4
+RUN make HOST=x86_64-w64-mingw32 -j4
 RUN rm -rf sources/*
 
 FROM deps AS build
@@ -16,7 +16,7 @@ WORKDIR /build
 COPY . .
 
 RUN ./autogen.sh && \
-    ./configure --prefix=/build/depends/x86_64-apple-darwin11 && \
+    ./configure --prefix=/build/depends/x86_64-w64-mingw32 && \
     make -j4
 
 FROM build AS unittest
@@ -25,4 +25,4 @@ RUN make check VERBOSE=1
 FROM build as rpctest
 RUN apt-get install -y python3-dev python3-zmq
 RUN /bin/bash qa/pull-tester/install-deps.sh
-RUN qa/pull-tester/rpc-tests.py --coverage
+RUN qa/pull-tester/rpc-tests.py --coverage --win

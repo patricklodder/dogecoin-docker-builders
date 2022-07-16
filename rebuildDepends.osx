@@ -1,14 +1,13 @@
-#FROM docker.pkg.github.com/patricklodder/dogecoin/1.14.4-compiled:latest as build
-#FROM 2aae9ae45c2e as build
-#FROM 8509a496f38b as build
-FROM 88a89d4b5723 as build
+FROM docker.pkg.github.com/patricklodder/dogecoin/1.14.3-build-osx:latest as build
 WORKDIR /build
 
 COPY . .
 
-#RUN make clean
-#RUN make -j4 -C depends
-RUN make -j4 
+RUN make -j4 -C depends HOST=x86_64-apple-darwin11
+
+RUN ./configure --prefix=`pwd`/depends/x86_64-apple-darwin11
+
+RUN make -j4
 
 #FROM build AS unittest
 #RUN make check VERBOSE=1

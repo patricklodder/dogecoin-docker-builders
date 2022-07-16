@@ -1,11 +1,11 @@
-FROM docker.pkg.github.com/patricklodder/dogecoin/base:latest AS deps
+FROM ghcr.io/patricklodder/dogecoin/base:latest AS deps
 WORKDIR /build/depends
-RUN apt-get update
-RUN apt-get install -y python-setuptools cmake imagemagick libcap-dev librsvg2-bin libz-dev libbz2-dev libtiff-tools python-dev
+RUN apt-get update -y
+RUN apt-get install -y python-setuptools cmake imagemagick libcap-dev librsvg2-bin libz-dev libbz2-dev libtiff-tools python-dev libtinfo5
 COPY depends .
 RUN mkdir sdk-sources
 RUN mkdir SDKs
-RUN curl --location --fail https://bitcoincore.org/depends-sources/sdks/MacOSX10.11.sdk.tar.gz -o sdk-sources/MacOSX10.11.sdk.tar.gz
+RUN curl --location --fail https://depends.dogecoincore.org/MacOSX10.11.sdk.tar.gz -o sdk-sources/MacOSX10.11.sdk.tar.gz
 RUN tar -C SDKs -xf sdk-sources/MacOSX10.11.sdk.tar.gz
 RUN make HOST=x86_64-apple-darwin11 -j4
 RUN rm -rf sources/*
